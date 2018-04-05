@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.action.extension" value="action,,"></constant>
+	<constant name="struts.locale" value="zh_CN"></constant>
+	<constant name="struts.i18n.encoding" value="utf-8"></constant>
+	<constant name="struts.devMode" value="true"></constant>
+	<!-- 设置上传文件的上限 -->
+	<constant name="struts.multipart.maxSize" value="100000000"/> 
+	
+	<package name="default" namespace="/" extends="json-default">
+		<interceptors>
+      		<interceptor name="validateUser" class="com.zxf.web.LoginInterceptor"></interceptor>
+      		<interceptor-stack name="loginStack">
+				<interceptor-ref name="defaultStack"></interceptor-ref>
+        		<interceptor-ref name="validateUser">
+        			<!-- 设置不需要拦截的方法 -->
+        			<param name="excludeMethods">login,findSensorsByColName,returnFileInfo,
+        			changePassword,showNews,showNewsList,showInformation,showAlarmRecordByTag,
+        			showAlarmRecordByTagAndTime,showFSSModel,showYearList,showMonthList,showDayList,showAccidentCase</param>
+        		</interceptor-ref>
+        		<interceptor-ref name="fileUpload">
+    				<param name="maximumSize">15728640</param>
+    			</interceptor-ref>
+      		</interceptor-stack>
+    	</interceptors>
+    	<default-interceptor-ref name="loginStack"></default-interceptor-ref>
+    
+		<action name="login" class="com.zxf.web.LoginAction" method="login">
+			<result name="success">/WEB-INF/jsp/Main.jsp</result>
+			<result name="fail">/Login.jsp</result>
+		</action>
+		
+		<action name="validUser" class="com.zxf.web.ValidUserAction" method="valid">
+        	<result type="json">
+            	<param name="root">usernameOk</param>
+      		</result>
+    	</action>
+    	
+    	<action name="validCol" class="com.zxf.web.ValidColAction" method="valid">
+        	<result type="json">
+            	<param name="root">colnameOk</param>
+      		</result>
+    	</action>
+    	
+    	<action name="validTable" class="com.zxf.web.ValidColAction" method="validTable">
+        	<result type="json">
+            	<param name="root">tablenameOk</param>
+      		</result>
+    	</action>
+    	 <!-- 添加用户和煤矿 -->
+    	<action name="addUser" class="com.zxf.web.AddUserAction" method="addUser">
+    		<result type="redirectAction">infoUserJump</result>
+    	</action>
+    	
+    	<action name="addCol" class="com.zxf.web.AddCollierieAction" method="addCollierie">
+    		<result type="redirectAction">infoCollierieJump</result>
+    	</action>
+    	
+    	<!-- 信息查询页面按名称查找或者查询全部 -->
+    	<action name="findByColName" class="com.zxf.web.QueryCollierieAction" method="queryOne">
+    		<result name="success">/WEB-INF/jsp/CollierieInfo.jsp</result>
+    	</action>
+    	
+    	<action name="findByUserName" class="com.zxf.web.QueryUserAction" method="queryOne">
+    		<result name="success">/WEB-INF/jsp/UserInfo.jsp</result>
+    	</action>
+    	
+    	<action name="checkSensor" class="com.zxf.web.QuerySensorAction" method="validColName">
+    		<result type="json">
+            	<param name="root">colNameOk</param>
+      		</result>
+    	</action>
+    	
+    	<action name="findSensorByColName" class="com.zxf.web.QuerySensorAction" method="queryByColname">
+    		<result name="success">/WEB-INF/jsp/SensorInfo.jsp</result>
+    	</action>
+    	<!-- 页面跳转控制action -->
+    	  
+    	<action name="addUserJump" class="com.zxf.web.PageJumpAction" method="addUserJump">
+    		<result name="success">/WEB-INF/jsp/AddUser.jsp</result>
+    	</action>
+    	<action name="infoUserJump" class="com.zxf.web.QueryUserAction" method="queryALL">
+    		<result name="success">/WEB-INF/jsp/UserInfo.jsp</result>
+    	</action>
+    	<action name="addCollierieJump" class="com.zxf.web.PageJumpAction" method="addColJump">
+    		<result name="success">/WEB-INF/jsp/AddCollierie.jsp</result>
+    	</action>
+    	<action name="infoCollierieJump" class="com.zxf.web.QueryCollierieAction" method="queryAll">
+    		<result name="success">/WEB-INF/jsp/CollierieInfo.jsp</result>
+    	</action>
+    	<action name="infoSensorJump" class="com.zxf.web.PageJumpAction" method="infoSenJump">
+    		<result name="success">/WEB-INF/jsp/SensorInfo.jsp</result>
+    	</action>
+    	
+    	<action name="uploadJump" class="com.zxf.web.PageJumpAction" method="uploadJump">
+    		<result name="success">/WEB-INF/jsp/UPload.jsp</result>
+    	</action>
+    	
+    	<action name="explainJump" class="com.zxf.web.PageJumpAction" method="explainJump">
+    		<result name="success">/WEB-INF/jsp/Main.jsp</result>
+    	</action>
+    	<!-- 信息显示页面的修改与删除链接action -->
+    	 
+    	<action name="revisec" class="com.zxf.web.ReviseAction" method="reviseCol">
+    		<result name="success">/WEB-INF/jsp/CollierieEdit.jsp</result>
+    	</action>
+    	<action name="reviseu" class="com.zxf.web.ReviseAction" method="reviseUser">
+    		<result name="success">/WEB-INF/jsp/UserEdit.jsp</result>
+    	</action>
+    	<action name="deletec" class="com.zxf.web.DeleteAction" method="deleteCol">
+    		<result type="redirectAction">infoCollierieJump</result>
+    	</action>
+    	<action name="deleteu" class="com.zxf.web.DeleteAction" method="deleteUser">
+    		<result type="redirectAction">infoUserJump</result>
+    	</action>
+    	
+    	<!-- 信息修改页面的action -->
+    	<action name="reviseCollierie" class="com.zxf.web.ReviseCollierieAction" method="reviseCollierie">
+    		<result type="redirectAction">infoCollierieJump</result>
+    	</action>
+    	<action name="reviseUser" class="com.zxf.web.ReviseUserAction" method="reviseUser">
+    		<result type="redirectAction">infoUserJump</result>
+    	</action>
+    	
+    	<!-- 新闻管理系统 -->
+		<action name="newsListJump" class="com.zxf.web.NewsAction" method="newsList">
+			<result name="success">/WEB-INF/jsp/NewsList.jsp</result>
+		</action>
+		
+		<action name="addNewsJump" class="com.zxf.web.NewsAction" method="addNewsJump">
+			<result name="success">/WEB-INF/jsp/AddNews.jsp</result>
+		</action>
+		
+		<action name="showNews" class="com.zxf.web.NewsAction" method="showNews">
+			<result name="success">/WEB-INF/jsp/ShowNews.jsp</result>
+		</action>
+		
+		<action name="updateNewsJump" class="com.zxf.web.NewsAction" method="showNews">
+			<result name="success">/WEB-INF/jsp/UpdateNews.jsp</result>
+		</action>
+		
+		<action name="deleteNews" class="com.zxf.web.NewsAction" method="deleteNews">
+			<result type="redirectAction">newsListJump</result>
+		</action>
+		
+		<action name="addNews" class="com.zxf.web.NewsAction" method="addNews">
+			<result type="redirectAction">newsListJump</result>
+		</action>
+		
+		<action name="updateNews" class="com.zxf.web.NewsAction" method="changeNews">
+			<result type="redirectAction">newsListJump</result>
+		</action>
+		
+		<!-- 公司产品信息管理 -->
+		<action name="companyJump" class="com.zxf.web.InformationAction" method="showCompanyInformation">
+			<result name="success">/WEB-INF/jsp/CompanyInformation.jsp</result>
+		</action>
+		
+		<action name="productJump" class="com.zxf.web.InformationAction" method="showProductInformation">
+			<result name="success">/WEB-INF/jsp/ProductInformation.jsp</result>
+		</action>
+		
+		<action name="updateInformation" class="com.zxf.web.InformationAction" method="updateInformation">
+			<result type="redirectAction">companyJump</result>
+		</action>
+		
+		<action name="updateInformationJump" class="com.zxf.web.InformationAction" method="updateJump">
+			<result name="success">/WEB-INF/jsp/UpdateInformation.jsp</result>
+		</action>
+		
+    	
+    	<!-- 上传新APK功能 -->
+    	<action name="upload" class="com.zxf.web.UpLoadAction" method="upLoadFile">
+    		<result type="redirectAction">uploadJump</result>
+    	</action>
+    	
+    	<!-- Android与IOS请求部分 -->
+    	<action name="AndroidLogin" class="com.zxf.androidAction.AndroidLoginAction" method="login">
+    		<result type="json"></result>
+    	</action>
+    	<action name="androidFindByColname" class="com.zxf.androidAction.AndroidFindAction" method="findSensorsByColName">
+    		<result type="json"></result>
+    	</action>
+    	<action name="androidUpdate" class="com.zxf.androidAction.AndroidUpdateAction" method="returnFileInfo">
+    		<result type="json"></result>
+    	</action>
+    	<action name="androidChangePassword" class="com.zxf.androidAction.AndroidChangePassword" method="changePassword">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<action name="androidFindNews" class="com.zxf.androidAction.AndroidNewsAction" method="showNews">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<action name="androidFindAllNews" class="com.zxf.androidAction.AndroidNewsAction" method="showNewsList">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<action name="androidFindInformation" class="com.zxf.androidAction.AndroidInformationAction" method="showInformation">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<action name="findAlarmRecordByTag" class="com.zxf.androidAction.AndroidIosAlarmRecordAction" method="showAlarmRecordByTag">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<action name="findAlarmRecordByTagAndTime" class="com.zxf.androidAction.AndroidIosAlarmRecordAction" method="showAlarmRecordByTagAndTime">
+    		<result type="json"></result>
+    	</action>
+    	
+    	<!-- 微信小程序请求start -->
+    	<!-- 获得防松锁选型结果  -->
+    	<action name="LookUpModelAction" class="com.zxf.weixingAcction.WeiXinAction" method="showFSSModel">
+    		<result type="json"></result>
+    	</action>
+    	<!-- 获取有记录的年份 -->
+    	<action name="FindYearAction" class="com.zxf.weixingAcction.WeiXinAction" method="showYearList">
+    		<result type="json"></result>
+    	</action>
+    	<!-- 获取年份对应的月份 -->
+    	<action name="FindMonthAction" class="com.zxf.weixingAcction.WeiXinAction" method="showMonthList">
+    		<result type="json"></result>
+    	</action>
+    	<!-- 获取年月对应的日期 -->
+    	<action name="FindDayAction" class="com.zxf.weixingAcction.WeiXinAction" method="showDayList">
+    		<result type="json"></result>
+    	</action>
+    	<!-- 获取年月日对应的具体消息-->
+    	<action name="FindAccidentCaseAction" class="com.zxf.weixingAcction.WeiXinAction" method="showAccidentCase">
+    		<result type="json"></result>
+    	</action>
+    	<!-- 微信小程序请求end -->
+	</package>
+</struts>
