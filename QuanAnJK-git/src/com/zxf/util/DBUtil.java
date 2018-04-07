@@ -14,7 +14,7 @@ public class DBUtil {
 			
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/quananjk?" +
 					"useUnicode=true&characterEncoding=utf8",
-					"root","******************");
+					"root","*************");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
